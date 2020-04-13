@@ -39,3 +39,16 @@ Grant _root_ access to your user by running as root the _visudo_ command and add
 <your_user>        ALL=(ALL)       NOPASSWD: ALL
 ```
 
+## Set Up NGINX
+
+Run the following commands as root user (last to verify that is is up an running):
+
+```
+yum install nginx
+systemctl start nginx
+systemctl enable nginx
+systemctl status nginx
+```
+
+You can now verify that it is running by typing your instance public DNS in the browser (i.e., http://ec2-xxx-xxx-xxx-xxx.compute-1.amazonaws.com/) and verifying that you get the "Welcome to nginx on Red Hat Enterprise Linux!" page.
+
