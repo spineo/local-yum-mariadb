@@ -21,7 +21,7 @@ Once the instance is up an running (as verified in the AWS console) we are ready
 ssh -i /<path-to-pem>/<mycert>.pem ec2-user@ec2-xxx-xxx-xxx-xxx.compute-1.amazonaws.com
 ```
 
-The Public DNS above can be obtained from the instance _Description_ (and it will change every time the instance is stopped/started)
+The Public DNS above can be obtained from the instance _Description_ (and it will change every time the instance is stopped/started). I will from here on generically reference it using 'xxx' for each 8-bit field.
 
 Create and configure your user id by running the following commands (_passwd_ set optional) and log in using your user:
 
@@ -52,3 +52,47 @@ systemctl status nginx
 
 You can now verify that it is running by typing your instance public DNS in the browser (i.e., http://ec2-xxx-xxx-xxx-xxx.compute-1.amazonaws.com/) and verifying that you get the "Welcome to nginx on Red Hat Enterprise Linux!" page.
 
+## Create the Local YUM Repository
+
+Run the following commands as root user to create the YUM repository we will use in this example:
+
+```
+yum install createrepo  yum-utils
+mkdir -p /var/www/html/repos/mariadb
+touch /var/www/html/repos/mariadb/comps.xml
+createrepo -g comps.xml /var/www/html/repos/mariadb
+```
+
+and edit a newly created _/etc/yum.repos.d/mariadb.repo_ file to include the following:
+
+```
+[mariadb]
+ name=mariadb
+ baseurl=http://ec2-54-198-51-112.compute-1.amazonaws.com/mariadb
+ enabled=1
+ gpgcheck=1
+```
+
+## Configure NGINX to Include the Repository
+
+Edit the newly created _/etc/nginx/conf.d/repos.conf_ to include the following:
+
+```
+server {
+        listen   80;
+        server_name  ec2-xxx-xxx-xxx-xxx.compute-1.amazonaws.com; #change  test.lab to your real domain
+        root   /var/www/html/repos;
+        location / {
+                index  index.php index.html index.htm;
+                autoindex on;   #enable listing of directory index
+        }
+}
+```
+
+and run _service restart nginx_
+
+Visiting our url http://ec2-xxx-xxx-xxx-xxx.compute-1.amazonaws.com/ will now show the _mariadb_ index.
+
+## References:
+
+* https://mariadb.com/kb/en/rpm/
