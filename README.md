@@ -13,7 +13,7 @@ Additional Configuration:
 
 Once configured, we will _Launch_ the instance selecting an existing _key pair_ certificated I created earlier.
 
-## Connect to the Instance
+## Connect to and Set up the Instance
 
 Once the instance is up an running (as verified in the AWS console) we are ready to now connect through an SSH-enabled terminal to your instance by running the command:
 
@@ -22,3 +22,20 @@ ssh -i /<path-to-pem>/<mycert>.pem ec2-user@ec2-xxx-xxx-xxx-xxx.compute-1.amazon
 ```
 
 The Public DNS above can be obtained from the instance _Description_ (and it will change every time the instance is stopped/started)
+
+Create and configure your user id by running the following commands (_passwd_ set optional) and log in using your user:
+
+```
+sudo su
+useradd <your_user>
+passwd <your_user>
+mkdir /home/<your_user>/.ssh
+cp /home/ec2-user/.ssh/authorized_keys /home/<your_user>/.ssh/
+chown -R <your_user>.<your_user> /home/<your_user>/.ssh
+```
+
+Grant _root_ access to your user by running as root the _visudo_ command and adding the line below the _ec2-user_ line:
+```
+<your_user>        ALL=(ALL)       NOPASSWD: ALL
+```
+
