@@ -93,6 +93,19 @@ and run _service restart nginx_
 
 Visiting our url http://ec2-xxx-xxx-xxx-xxx.compute-1.amazonaws.com/ will now show the _mariadb_ index.
 
+## Download the RPMS
+
+Run the following commands as _root_ to download the specific version 10.4.12 MariaDB rpms compatible with RHEL-8 (the second _wget_ will download any additional non-MariaDB rpms):
+
+cd /var/www/html/repos/mariadb/
+mkdir rpms
+cd rpms
+yum install wget
+wget -r --no-parent --no-directories --accept-regex 'MariaDB.*10.4.12.*.rpm' http://mariadb.mirror.globo.tech//mariadb-10.4.12/yum/rhel8-amd64/rpms/
+wget -r --no-parent --no-directories --reject-regex 'MariaDB.*.rpm' http://mariadb.mirror.globo.tech//mariadb-10.4.12/yum/rhel8-amd64/rpms/
+rm index.html
+
+
 ## References:
 
 * https://mariadb.com/kb/en/rpm/
