@@ -95,16 +95,22 @@ Visiting our url http://ec2-xxx-xxx-xxx-xxx.compute-1.amazonaws.com/ will now sh
 
 ## Download the RPMS
 
-Run the following commands as _root_ to download the specific version 10.4.12 MariaDB rpms and any non-MariaDB rpms  compatible with RHEL-8 (last _rm_ includes any non-rpm files):
+Run the following commands as _root_ to download the specific version 10.4.12 MariaDB (and non-MariaDB) rpms compatible with RHEL-8 (last _rm_ includes any non-rpm files):
 
 ```
 cd /var/www/html/repos/mariadb/
-mkdir rpms
-cd rpms
 yum install wget
 wget -r --no-parent --no-directories --accept-regex 'MariaDB.*10.4.12.*.rpm' http://mariadb.mirror.globo.tech//mariadb-10.4.12/yum/rhel8-amd64/rpms/
 wget -r --no-parent --no-directories --reject-regex 'MariaDB.*.rpm' http://mariadb.mirror.globo.tech//mariadb-10.4.12/yum/rhel8-amd64/rpms/
 rm index.html
+createrepo .
+touch repodata/comps.xml
+```
+
+## Edit the repodata/comps.xml to Include (for now):
+
+```
+
 ```
 
 ## References:
