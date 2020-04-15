@@ -9,7 +9,7 @@ In the AWS console I will select the Red Hat Enterprise Linux 8 64-bit, t2.micro
 
 Additional Configuration:
 * Under the _Add Tags_ tab with create (i.e., Add Tag) the _Name_, _MariaDB_ key/value pair.
-* Under the _Configure Security Group_ tab we will add both the _HTTP_ and _HTTPS_ rules.
+* Under the _Configure Security Group_ tab we will add the _HTTP_ (or _HTTPS_ if configuring SSL) rule.
 
 Once configured, we will _Launch_ the instance selecting an existing _key pair_ certificated I created earlier.
 
@@ -21,7 +21,7 @@ Once the instance is up an running (as verified in the AWS console) we are ready
 ssh -i /<path-to-pem>/<mycert>.pem ec2-user@ec2-xxx-xxx-xxx-xxx.compute-1.amazonaws.com
 ```
 
-The Public DNS above can be obtained from the instance _Description_ (and it will change every time the instance is stopped/started). I will from here on generically reference it using 'xxx' for each 8-bit field.
+The Public DNS above can be obtained from the instance _Description_ (and it will change every time the instance is re-started). I will from here on generically reference it using 'xxx' for each 8-bit field.
 
 Create and configure your user id by running the following commands (_passwd_ set optional) and log in using your user:
 
@@ -50,11 +50,11 @@ systemctl enable nginx
 systemctl status nginx
 ```
 
-You can now verify that it is running by typing your instance public DNS in the browser (i.e., http://ec2-xxx-xxx-xxx-xxx.compute-1.amazonaws.com/) and verifying that you get the "Welcome to nginx on Red Hat Enterprise Linux!" page.
+You can now verify that it is running by typing your instance public DNS in the browser (i.e., http://ec2-xxx-xxx-xxx-xxx.compute-1.amazonaws.com/) and verifying that you get the "Welcome to nginx on Red Hat Enterprise Linux!" page (if it fails to start, the _journalctl -xe_ command, as indicated in the output can help troubleshoot the cause)
 
 ## Create the Local YUM Repository
 
-Run the following commands as root user to create the YUM repository we will use in this example:
+Run the following commands as _root_ user to support the YUM repository creation:
 
 ```
 yum install createrepo  yum-utils
@@ -73,12 +73,12 @@ gpgcheck=0
 
 ## Configure NGINX to Include the Repository
 
-Edit the newly created _/etc/nginx/conf.d/repos.conf_ to include the following (this configuration should automatically be included by the _/etc/nginx/nginx.conf_ main configuration file):
+Edit the newly created _/etc/nginx/conf.d/repos.conf_ to include the following (this configuration should automatically be imported by the _/etc/nginx/nginx.conf_ main configuration file):
 
 ```
 server {
         listen   80;
-        server_name  ec2-xxx-xxx-xxx-xxx.compute-1.amazonaws.com; #change  test.lab to your real domain
+        server_name  ec2-xxx-xxx-xxx-xxx.compute-1.amazonaws.com; #change to your real domain
         root   /var/www/html/repos;
         location / {
                 autoindex on;   #enable listing of directory index
@@ -86,15 +86,6 @@ server {
 }
 ```
 
-and run the below commands (first one will enable the directory files listing/access):
-```
-restorecon -R /var/www/html/repos
-service restart nginx
-```
-
-Visiting our url http://ec2-xxx-xxx-xxx-xxx.compute-1.amazonaws.com/ will now show the _mariadb_ index. Clicking on the _/mariadb_ folder will display the list of rpms as shown below.
-
-![mariadb index](images/mariadb_index.png)
 
 ## Download the RPMS and Create the Repo
 
@@ -108,6 +99,18 @@ wget -r --no-parent --no-directories --reject-regex 'MariaDB.*.rpm' http://maria
 rm index.html
 createrepo .
 ```
+
+## Setup File Listing and Restart NGINX
+
+Run the below commands (first one will enable the directory files listing/access):
+```
+restorecon -R /var/www/html/repos
+service restart nginx
+```
+
+Visiting our url http://ec2-xxx-xxx-xxx-xxx.compute-1.amazonaws.com/ will now show the _mariadb_ index. Clicking on the _/mariadb_ folder will display the list of rpms as shown below.
+
+![mariadb index](images/mariadb_index.png)
 
 ## Test Accessing the Repo Locally
 
