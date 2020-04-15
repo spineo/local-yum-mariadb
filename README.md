@@ -92,7 +92,9 @@ restorecon -R /var/www/html/repos
 service restart nginx
 ```
 
-Visiting our url http://ec2-xxx-xxx-xxx-xxx.compute-1.amazonaws.com/ will now show the _mariadb_ index.
+Visiting our url http://ec2-xxx-xxx-xxx-xxx.compute-1.amazonaws.com/ will now show the _mariadb_ index. Clicking on the _/mariadb_ folder will display the list of rpms as shown below.
+
+![mariadb index](images/mariadb_index.png)
 
 ## Download the RPMS and Create the Repo
 
