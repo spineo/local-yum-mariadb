@@ -61,7 +61,7 @@ yum install createrepo  yum-utils
 mkdir -p /var/www/html/repos/mariadb
 ```
 
-and edit a newly created _/etc/yum.repos.d/mariadb.repo_ file to include the following (we will skip the _gpgcheck_ for this exercise):
+and edit a newly created _/etc/yum.repos.d/mariadb.repo_ file to include the following (for now, disabling _gpgcheck_):
 
 ```
 [mariadb]
@@ -73,7 +73,7 @@ gpgcheck=0
 
 ## Configure NGINX to Include the Repository
 
-Edit the newly created _/etc/nginx/conf.d/repos.conf_ to include the following:
+Edit the newly created _/etc/nginx/conf.d/repos.conf_ to include the following (this configuration should automatically be included by the _/etc/nginx/nginx.conf_ main configuration file):
 
 ```
 server {
@@ -94,7 +94,7 @@ service restart nginx
 
 Visiting our url http://ec2-xxx-xxx-xxx-xxx.compute-1.amazonaws.com/ will now show the _mariadb_ index.
 
-## Download the RPMS
+## Download the RPMS and Create the Repo
 
 Run the following commands as _root_ to download the specific version 10.4.12 MariaDB (and non-MariaDB) rpms compatible with RHEL-8 (last _rm_ includes any non-rpm files):
 
@@ -105,14 +105,49 @@ wget -r --no-parent --no-directories --accept-regex 'MariaDB.*10.4.12.*.rpm' htt
 wget -r --no-parent --no-directories --reject-regex 'MariaDB.*.rpm' http://mariadb.mirror.globo.tech//mariadb-10.4.12/yum/rhel8-amd64/rpms/
 rm index.html
 createrepo .
-touch repodata/comps.xml
 ```
 
-## Edit the repodata/comps.xml to Include (for now):
+## Test Accessing the Repo Locally
+
+As _root_ user (or sudo) run _yum list | grep MariaDB_ to get a listing like below:
 
 ```
-
+MariaDB-backup.x86_64                                10.4.12-1.el8                                     mariadb                         
+MariaDB-backup-debuginfo.x86_64                      10.4.12-1.el8                                     mariadb                         
+MariaDB-client.x86_64                                10.4.12-1.el8                                     mariadb                         
+MariaDB-client-debuginfo.x86_64                      10.4.12-1.el8                                     mariadb                         
+MariaDB-common.x86_64                                10.4.12-1.el8                                     mariadb                         
+MariaDB-common-debuginfo.x86_64                      10.4.12-1.el8                                     mariadb                         
+MariaDB-connect-engine.x86_64                        10.4.12-1.el8                                     mariadb                         
+MariaDB-connect-engine-debuginfo.x86_64              10.4.12-1.el8                                     mariadb                         
+MariaDB-cracklib-password-check.x86_64               10.4.12-1.el8                                     mariadb                         
+MariaDB-cracklib-password-check-debuginfo.x86_64     10.4.12-1.el8                                     mariadb                         
+MariaDB-devel-debuginfo.x86_64                       10.4.12-1.el8                                     mariadb                         
+MariaDB-gssapi-server.x86_64                         10.4.12-1.el8                                     mariadb                         
+MariaDB-gssapi-server-debuginfo.x86_64               10.4.12-1.el8                                     mariadb                         
+MariaDB-rocksdb-engine.x86_64                        10.4.12-1.el8                                     mariadb                         
+MariaDB-rocksdb-engine-debuginfo.x86_64              10.4.12-1.el8                                     mariadb                         
+MariaDB-server-debuginfo.x86_64                      10.4.12-1.el8                                     mariadb                         
+MariaDB-shared.x86_64                                10.4.12-1.el8                                     mariadb                         
+MariaDB-shared-debuginfo.x86_64                      10.4.12-1.el8                                     mariadb                         
+MariaDB-test-debuginfo.x86_64                        10.4.12-1.el8                                     mariadb                         
+MariaDB-tokudb-engine.x86_64                         10.4.12-1.el8                                     mariadb                         
+MariaDB-tokudb-engine-debuginfo.x86_64               10.4.12-1.el8                                     mariadb
 ```
+
+## Test Accessing the Repo Remotely
+
+As _root_ user, create the _/etc/yum.repos.d/mariadb.repo_ with contents below (for now, setting disabling _gpgcheck_) in a remote VM:
+```
+[mariadb]
+name=mariadb
+baseurl=http://ec2-xxx-xxx-xxx-xxx.compute-1.amazonaws.com/mariadb
+enabled=1
+gpgcheck=0
+```
+
+Assuming no access issues, the yum listing command above should produce the same output as the local run.
+
 
 ## References:
 
