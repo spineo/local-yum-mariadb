@@ -13,7 +13,7 @@ Additional Configuration:
 * Under the _Add Tags_ tab with create (i.e., Add Tag) the _Name_, _MariaDB_ key/value pair.
 * Under the _Configure Security Group_ tab we will add the _HTTP_ (or _HTTPS_ if configuring SSL) rule.
 
-Once configured, we will _Launch_ the instance selecting an existing _key pair_ certificated I created earlier.
+Once configured, we will _Launch_ the instance selecting an existing _key pair_ certificate I created earlier.
 
 ## Connect to and Set up the Instance
 
@@ -306,6 +306,41 @@ Edit the _/etc/my.cnf.d/server.cnf_ file to include the below and run _service m
 server-id=1
 log_bin=/var/log/mariadb/mariadb-bin.log
 ```
+
+## Configure the Database
+
+Run _mysql -u root -p_ (enter the password set during the secure installation) and run commands as shown below:
+```
+[root@ip-***-***-***-*** yum.repos.d]# mysql -u root -p
+Enter password: 
+Welcome to the MariaDB monitor.  Commands end with ; or \g.
+Your MariaDB connection id is 9
+Server version: 10.4.12-MariaDB-log MariaDB Server
+
+Copyright (c) 2000, 2018, Oracle, MariaDB Corporation Ab and others.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+MariaDB [(none)]> GRANT REPLICATION SLAVE ON *.* TO replication_user IDENTIFIED BY '********';
+Query OK, 0 rows affected (0.001 sec)
+
+MariaDB [(none)]> FLUSH PRIVILEGES;
+Query OK, 0 rows affected (0.000 sec)
+
+MariaDB [(none)]> FLUSH TABLES WITH READ LOCK;
+Query OK, 0 rows affected (0.002 sec)
+
+MariaDB [(none)]> SHOW MASTER STATUS;
++--------------------+----------+--------------+------------------+
+| File               | Position | Binlog_Do_DB | Binlog_Ignore_DB |
++--------------------+----------+--------------+------------------+
+| mariadb-bin.000001 |      647 |              |                  |
++--------------------+----------+--------------+------------------+
+1 row in set (0.000 sec)
+
+MariaDB [(none)]> 
+```
+
 
 ## References:
 
