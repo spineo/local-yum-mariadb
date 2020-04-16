@@ -152,7 +152,7 @@ MariaDB-tokudb-engine.x86_64                         10.4.12-1.el8              
 MariaDB-tokudb-engine-debuginfo.x86_64               10.4.12-1.el8                                     mariadb
 ```
 
-Note that all RPMS shown in the file listing screenshot are not there (for instance, MariaDB-server is missing). This is because RHEL 8 already comes with its own distribution with a lowercase naming convention:
+Note that all RPMS shown in the file listing screenshot are not visible (for instance, MariaDB-server is missing). This is because RHEL 8 already comes with its own RPM distribution named using a lowercase naming convention:
 
 ```
 [root@ip-xxx-xxx-xxx-xxx ~]# yum list | grep -i mariadb-server
@@ -184,6 +184,39 @@ Assuming no access issues, the yum listing command above should produce the same
 
 ## Install the MariaDB Server/Client on the Local VM
 
+As _root_ user (or using _sudo_) run the following commands:
+```
+yum clean metadata
+yum install galera-4
+yum install --disablerepo=rhel-8-appstream-rhui-rpms MariaDB-server MariaDB-client
+```
+
+Once installation is complete, start the server by running _service mariadb start_ (and _service mariadb status_ to verify that it is running)
+
+Access the database by running _mariadb -u root_ and once in, run the command shown below:
+```
+[root@ip-xxx-xxx-xxx-xxx ]# mariadb -u root
+Welcome to the MariaDB monitor.  Commands end with ; or \g.
+Your MariaDB connection id is 9
+Server version: 10.4.12-MariaDB MariaDB Server
+
+Copyright (c) 2000, 2018, Oracle, MariaDB Corporation Ab and others.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+MariaDB [(none)]> show databases;
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| mysql              |
+| performance_schema |
+| test               |
++--------------------+
+4 rows in set (0.000 sec)
+
+MariaDB [(none)]> 
+```
 
 ## References:
 
