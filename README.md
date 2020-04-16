@@ -338,9 +338,13 @@ MariaDB [(none)]> SHOW MASTER STATUS;
 +--------------------+----------+--------------+------------------+
 1 row in set (0.000 sec)
 
+MariaDB [(none)]> UNLOCK TABLES;
+Query OK, 0 rows affected (0.000 sec)
+
 MariaDB [(none)]> 
 ```
 
+and then run _service mariadb restart_
 
 ## References:
 
