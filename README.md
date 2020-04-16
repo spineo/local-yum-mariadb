@@ -109,6 +109,9 @@ rm index.html
 createrepo .
 ```
 
+Note: If you add RPMS to the repository you can run _yum clean all_ followed _createrepo --update /var/www/html/repos/mariadb_
+
+
 ## Setup File Listing and Restart NGINX
 
 Run the below commands (first one will enable the directory files listing/access):
@@ -149,9 +152,26 @@ MariaDB-tokudb-engine.x86_64                         10.4.12-1.el8              
 MariaDB-tokudb-engine-debuginfo.x86_64               10.4.12-1.el8                                     mariadb
 ```
 
+Note that all RPMS shown in the file listing screenshot are not there (for instance, MariaDB-server is missing). This is because RHEL 8 already comes with its own distribution with a lowercase naming convention:
+
+```
+[root@ip-xxx-xxx-xxx-xxx ~]# yum list | grep -i mariadb-server
+MariaDB-server-debuginfo.x86_64                      10.4.12-1.el8                                     mariadb                         
+mariadb-server.x86_64                                3:10.3.17-1.module+el8.1.0+3974+90eded84          rhel-8-appstream-rhui-rpms      
+mariadb-server-galera.x86_64                         3:10.3.17-1.module+el8.1.0+3974+90eded84          rhel-8-appstream-rhui-rpms      
+mariadb-server-utils.x86_64                          3:10.3.17-1.module+el8.1.0+3974+90eded84          rhel-8-appstream-rhui-rpms
+```
+
+If I temporarily disable that repo when performing the listing, the version I want install is now visible:
+```
+[root@ip-172-31-39-159 ~]# yum list --disablerepo=rhel-8-appstream-rhui-rpms | grep -i mariadb-server
+MariaDB-server.x86_64                            10.4.12-1.el8                               mariadb                        
+MariaDB-server-debuginfo.x86_64                  10.4.12-1.el8                               mariadb
+```
+
 ## Test Accessing the Repo Remotely
 
-As _root_ user, create the _/etc/yum.repos.d/mariadb.repo_ with contents below (for now, setting disabling _gpgcheck_) in a remote VM:
+As _root_ user, create the _/etc/yum.repos.d/mariadb.repo_ with contents below (for now, disabling _gpgcheck_ though it can be enabled as shown earlier) in a remote VM:
 ```
 [mariadb]
 name=mariadb
@@ -161,6 +181,8 @@ gpgcheck=0
 ```
 
 Assuming no access issues, the yum listing command above should produce the same output as the local run.
+
+## Install the MariaDB Server/Client on the Local VM
 
 
 ## References:
