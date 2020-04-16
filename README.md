@@ -52,24 +52,33 @@ systemctl status nginx
 
 You can now verify that it is running by typing your instance public DNS in the browser (i.e., http://ec2-xxx-xxx-xxx-xxx.compute-1.amazonaws.com/) and verifying that you get the "Welcome to nginx on Red Hat Enterprise Linux!" page (if it fails to start, the _journalctl -xe_ command, as indicated in the output can help troubleshoot the cause)
 
-## Create the Local YUM Repository
+## Create the Local YUM/DNF Repository
 
-Run the following commands as _root_ user to support the YUM repository creation:
+While I have used _yum_ for this installation, as of RHEL 8 it is being replaced by the _dnf_ installer (either one can be used). Run the following commands as _root_ user to support the YUM repository creation:
 
 ```
 yum install createrepo  yum-utils
 mkdir -p /var/www/html/repos/mariadb
 ```
 
-and edit a newly created _/etc/yum.repos.d/mariadb.repo_ file to include the following (for now, disabling _gpgcheck_):
+and edit a newly created _/etc/yum.repos.d/mariadb.repo_ file to include the following:
 
 ```
 [mariadb]
 name=mariadb
 baseurl=file:///var/www/html/repos/mariadb
 enabled=1
-gpgcheck=0
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-MariaDB
+gpgcheck=1
 ```
+
+The _gpgcheck_ can be disable initially but, if you want to set this up as I did, you can run the below commands as _root_:
+
+```
+cd /etc/pki/rpm-gpg
+wget https://yum.mariadb.org/RPM-GPG-KEY-MariaDB
+```
+
 
 ## Configure NGINX to Include the Repository
 
@@ -157,3 +166,4 @@ Assuming no access issues, the yum listing command above should produce the same
 ## References:
 
 * https://mariadb.com/kb/en/rpm/
+* https://mariadb.com/kb/en/yum/
