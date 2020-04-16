@@ -3,6 +3,8 @@ Local YUM Repository including MariaDB
 
 In this example I will set up a local YUM repository in an AWS instance and use it to Install/Configure MariaDB.
 
+# Prepare the AWS Instance
+
 ## Launch the Instance
 
 In the AWS console I will select the Red Hat Enterprise Linux 8 64-bit, t2.micro (Free tier eligible) instance. 
@@ -39,7 +41,9 @@ Grant _root_ access to your user by running as root the _visudo_ command and add
 <your_user>        ALL=(ALL)       NOPASSWD: ALL
 ```
 
-## Set Up NGINX
+# Set Up NGINX/YUM
+
+## Install/Configure NGINX
 
 Run the following commands as root user (last to verify that is is up an running):
 
@@ -182,6 +186,8 @@ gpgcheck=0
 
 Assuming no access issues, the yum listing command above should produce the same output as the local run.
 
+# MYSQL Setup
+
 ## Install the MariaDB Server/Client on the Local VM
 
 As _root_ user (or using _sudo_) run the following commands:
@@ -285,6 +291,21 @@ installation should now be secure.
 Thanks for using MariaDB!
 ```
 
+## Configure the Master
+
+As _root_ user (or _sudo_) run below commands:
+```
+mkdir /var/log/mariadb
+chown -R mysql. /var/log/mariadb
+cp /etc/my.cnf.d/server.cnf  /etc/my.cnf.d/server.cnf.orig
+```
+
+Edit the _/etc/my.cnf.d/server.cnf_ file to include the below and run _service mariadb restart_ after:
+```
+[mysqld]
+server-id=1
+log_bin=/var/log/mariadb/mariadb-bin.log
+```
 
 ## References:
 
