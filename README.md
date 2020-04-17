@@ -484,6 +484,24 @@ MariaDB [(none)]> SHOW DATABASES;
 4 rows in set (0.000 sec)
 ```
 
+Likewise, dropping the database on the Master (i.e., DROP DATABASE replication_test) will make it disappear on the slave.
+
+## Troubleshooting Replication
+
+As mentioned, you can run _SHOW SLAVE STATUS_ to troubleshoot any issues with the replication. For instance, one error I got initially was: 
+```
+Got fatal error 1236 from master when reading data from binary log: 'log event entry exceeded max_allowed_packet; Increase max_allowed_packet on master; the first event 'mariadb-bin.000001' at 634, the last event read from 'mariadb-bin.000001' at 634, the last byte read from 'mariadb-bin.000001' at 653.'
+```
+This was easily resolved by modifying the configuration in /etc/my.cnf.d/server.cnf on the master and adding the _max_allowed_packet_ property as shown below:
+```
+# this is only for the mysqld standalone daemon
+[mysqld]
+server-id=1
+log_bin=/var/log/mariadb/mariadb-bin.log
+max_allowed_packet=32M
+```
+Note that a configuration change like the one above will require a daemon restart on the master (i.e., _service mariadb restart_) followed by a mariadb configuration change on the slave (i.e., _mariadb -u root -p_ followed by the sequence of SQL commands _STOP SLAVE_, _SHOW MASTER STATUS_, _CHANGE MASTER TO..._ (include the new FILE/POS values), _START SLAVE_, and _SHOW SLAVE STATUS_)
+
 
 ## References:
 
