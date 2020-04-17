@@ -1,7 +1,7 @@
 # local-yum-mariadb
-Local YUM Repository including MariaDB
+Local YUM Repository and a MariaDB Cluster
 
-In this example I will set up a local YUM repository in an AWS instance and use it to Install/Configure MariaDB.
+In this example I will set up a local YUM repository in an AWS instance and use it to install/configure a 2-node MariaDB cluster.
 
 # Prepare the AWS Instance
 
@@ -186,9 +186,9 @@ gpgcheck=0
 
 Assuming no access issues, the yum listing command above should produce the same output as the local run.
 
-# MYSQL Setup
+# MariaDB Setup
 
-## Install the MariaDB Server/Client on the Local VM
+## Install the MariaDB Server/Client on the Master VM
 
 As _root_ user (or using _sudo_) run the following commands:
 ```
@@ -291,7 +291,7 @@ installation should now be secure.
 Thanks for using MariaDB!
 ```
 
-## Configure the Master
+## Configure the Database
 
 As _root_ user (or _sudo_) run below commands:
 ```
@@ -345,6 +345,13 @@ MariaDB [(none)]>
 ```
 
 and then run _service mariadb restart_
+
+## Install the MariaDB Server/Client on a Slave VM
+
+Before starting the installation we will create another RHEL 8 AWS instance (same flavor) and give it the tag _Name MariaDB-Slave_. No need to assign any security groups (other than leave the default SSH access).
+
+Once up, we will connect to and set up the instance like we did earlier with the YUM/Master VM.
+
 
 ## References:
 
