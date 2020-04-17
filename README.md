@@ -403,12 +403,86 @@ log_bin=/var/log/mariadb/mariadb-bin.log
 
 On the AWS Console create a custom security group named _MariaDB_ for Outbound/Inbound traffic on port 3306 (i.e., Go to  _EC2 Dashboard -> Security groups -> Create security group_ and select the built-in TCP rule _MYSQL/Aurora_ on the desired source IP range).
 
+![mariadb security group](images/mariadb_security_group.png)
+
 Once the security group has been created, attach it to the MariaDB master instance (i.e., on the Console that shows the  _Running Instances_, select the master instance and go to _Actions -> Networking -> Change Security Groups_, check the _MariaDB_ group, and click on _Assign Security Groups_)
 
 
 ## Configure the Slave to Connect to Master
 
 Log on to MariaDB (_mariadb -u root -p_) on the slave and run the commands shown below.
+
+```
+MariaDB [(none)]> SHOW MASTER STATUS;
++--------------------+----------+--------------+------------------+
+| File               | Position | Binlog_Do_DB | Binlog_Ignore_DB |
++--------------------+----------+--------------+------------------+
+| mariadb-bin.000004 |      344 |              |                  |
++--------------------+----------+--------------+------------------+
+1 row in set (0.000 sec)
+
+MariaDB [(none)]> CHANGE MASTER TO MASTER_HOST='ec2-xxx-xxx-xxx-xxx.compute-1.amazonaws.com', MASTER_USER='replication_user', MASTER_PASSWORD='*******', MASTER_PORT=3306, MASTER_LOG_FILE='mariadb-bin.000004', MASTER_LOG_POS=344, MASTER_CONNECT_RETRY=5;
+Query OK, 0 rows affected (0.006 sec)
+
+MariaDB [(none)]> START SLAVE;
+Query OK, 0 rows affected (0.001 sec)
+
+MariaDB [(none)]> SHOW SLAVE STATUS;
++----------------------------------+-------------------------------------------+------------------+-------------+---------------+--------------------+---------------------+-----------------------------------+---------------+-----------------------+------------------+-------------------+-----------------+---------------------+--------------------+------------------------+-------------------------+-----------------------------+------------+------------+--------------+---------------------+-----------------+-----------------+----------------+---------------+--------------------+--------------------+--------------------+-----------------+-------------------+----------------+-----------------------+-------------------------------+---------------+---------------+----------------+----------------+-----------------------------+------------------+----------------+--------------------+------------+-------------+-------------------------+-----------------------------+---------------+-----------+---------------------+-----------------------------------------------------------------------------+------------------+--------------------------------+----------------------------+
+| Slave_IO_State                   | Master_Host                               | Master_User      | Master_Port | Connect_Retry | Master_Log_File    | Read_Master_Log_Pos | Relay_Log_File                    | Relay_Log_Pos | Relay_Master_Log_File | Slave_IO_Running | Slave_SQL_Running | Replicate_Do_DB | Replicate_Ignore_DB | Replicate_Do_Table | Replicate_Ignore_Table | Replicate_Wild_Do_Table | Replicate_Wild_Ignore_Table | Last_Errno | Last_Error | Skip_Counter | Exec_Master_Log_Pos | Relay_Log_Space | Until_Condition | Until_Log_File | Until_Log_Pos | Master_SSL_Allowed | Master_SSL_CA_File | Master_SSL_CA_Path | Master_SSL_Cert | Master_SSL_Cipher | Master_SSL_Key | Seconds_Behind_Master | Master_SSL_Verify_Server_Cert | Last_IO_Errno | Last_IO_Error | Last_SQL_Errno | Last_SQL_Error | Replicate_Ignore_Server_Ids | Master_Server_Id | Master_SSL_Crl | Master_SSL_Crlpath | Using_Gtid | Gtid_IO_Pos | Replicate_Do_Domain_Ids | Replicate_Ignore_Domain_Ids | Parallel_Mode | SQL_Delay | SQL_Remaining_Delay | Slave_SQL_Running_State                                                     | Slave_DDL_Groups | Slave_Non_Transactional_Groups | Slave_Transactional_Groups |
++----------------------------------+-------------------------------------------+------------------+-------------+---------------+--------------------+---------------------+-----------------------------------+---------------+-----------------------+------------------+-------------------+-----------------+---------------------+--------------------+------------------------+-------------------------+-----------------------------+------------+------------+--------------+---------------------+-----------------+-----------------+----------------+---------------+--------------------+--------------------+--------------------+-----------------+-------------------+----------------+-----------------------+-------------------------------+---------------+---------------+----------------+----------------+-----------------------------+------------------+----------------+--------------------+------------+-------------+-------------------------+-----------------------------+---------------+-----------+---------------------+-----------------------------------------------------------------------------+------------------+--------------------------------+----------------------------+
+| Waiting for master to send event | ec2-xxx-xxx-xxx-xxx.compute-1.amazonaws.com | replication_user |        3306 |             5 | mariadb-bin.000008 |                 652 | ip-xxx-xxx-xxx-xxx-relay-bin.000006 |           953 | mariadb-bin.000008    | Yes              | Yes               |                 |                     |                    |                        |                         |                             |          0 |            |            0 |                 652 |            1970 | None            |                |             0 | No                 |                    |                    |                 |                   |                |                     0 | No                            |             0 |               |              0 |                |                             |                1 |                |                    | No         |             |                         |                             | conservative  |         0 |                NULL | Slave has read all relay log; waiting for the slave I/O thread to update it |                8 |                              0 |                          0 |
++----------------------------------+-------------------------------------------+------------------+-------------+---------------+--------------------+---------------------+-----------------------------------+---------------+-----------------------+------------------+-------------------+-----------------+---------------------+--------------------+------------------------+-------------------------+-----------------------------+------------+------------+--------------+---------------------+-----------------+-----------------+----------------+---------------+--------------------+--------------------+--------------------+-----------------+-------------------+----------------+-----------------------+-------------------------------+---------------+---------------+----------------+----------------+-----------------------------+------------------+----------------+--------------------+------------+-------------+-------------------------+-----------------------------+---------------+-----------+---------------------+-----------------------------------------------------------------------------+------------------+--------------------------------+----------------------------+
+1 row in set (0.000 sec)
+
+MariaDB [(none)]>
+
+```
+
+If the slave is listening without errors, you will see the _Slave_IO_State_ set to "Waiting for master to send event" as shown above.
+
+You can now test the replication _Master -> Slave_ by logging onto MariaDB on the Master (i.e., _mariadb -u root -p_) and running:
+
+```
+MariaDB [(none)]> SHOW DATABASES;
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| mysql              |
+| performance_schema |
++--------------------+
+3 rows in set (0.000 sec)
+
+MariaDB [(none)]> CREATE DATABASE replication_test;
+Query OK, 1 row affected (0.000 sec)
+
+MariaDB [(none)]> SHOW DATABASES;
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| mysql              |
+| performance_schema |
+| replication_test   |
++--------------------+
+4 rows in set (0.000 sec)
+```
+
+and verify that the database has been created on the slave by running on the slave:
+
+```
+MariaDB [(none)]> SHOW DATABASES;
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| mysql              |
+| performance_schema |
+| replication_test   |
++--------------------+
+4 rows in set (0.000 sec)
+```
 
 
 ## References:
