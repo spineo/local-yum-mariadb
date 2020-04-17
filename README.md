@@ -291,7 +291,7 @@ installation should now be secure.
 Thanks for using MariaDB!
 ```
 
-## Configure the Database
+## Modify the Configuration
 
 As _root_ user (or _sudo_) run below commands:
 ```
@@ -382,6 +382,34 @@ yum install galera-4
 yum install --disablerepo=rhui-rhel-8-appstream-rhui-rpms MariaDB-server MariaDB-client
 ```
 As before, starup the instance (_service mariadb start_), test log on to the database (_mariadb -u root_), and run the _mysql_secure_installation_ script setting the same options as in the master instance.
+
+## Modify the Configuration
+
+As before we will modify the configuration (but use a different value for _server-id_) and restart the service (_service mariadb restart_):
+```
+mkdir /var/log/mariadb
+chown -R mysql. /var/log/mariadb
+cp /etc/my.cnf.d/server.cnf  /etc/my.cnf.d/server.cnf.orig
+```
+
+Edit the _/etc/my.cnf.d/server.cnf_ file to include the below configuration and run _service mariadb restart_ after:
+```
+[mysqld]
+server-id=2
+log_bin=/var/log/mariadb/mariadb-bin.log
+```
+
+## Create an AWS Security Group
+
+On the AWS Console create a custom security group named _MariaDB_ for Outbound/Inbound traffic on port 3306 (i.e., Go to  _EC2 Dashboard -> Security groups -> Create security group_ and select the built-in TCP rule _MYSQL/Aurora_ on the desired source IP range).
+
+Once the security group has been created, attach it to the MariaDB master instance (i.e., on the Console that shows the  _Running Instances_, select the master instance and go to _Actions -> Networking -> Change Security Groups_, check the _MariaDB_ group, and click on _Assign Security Groups_)
+
+
+## Configure the Slave to Connect to Master
+
+Log on to MariaDB (_mariadb -u root -p_) on the slave and run the commands shown below.
+
 
 ## References:
 
