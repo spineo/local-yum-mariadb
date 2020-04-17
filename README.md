@@ -350,7 +350,28 @@ and then run _service mariadb restart_
 
 Before starting the installation we will create another RHEL 8 AWS instance (same flavor) and give it the tag _Name MariaDB-Slave_. No need to assign any security groups (other than leave the default SSH access).
 
-Once up, we will connect to and set up the instance like we did earlier with the YUM/Master VM.
+Once up, we will connect to the instance as _ec2-user_ (we can skip adding our user).
+
+## Create the YUM Repository
+
+As _root_ user we will create an _/etc/yum.repos.d/mariadb.repo_ file to include the following:
+
+```
+[mariadb]
+name=mariadb
+baseurl=http://ec2-xxx-xxx-xxx-xxx.compute-1.amazonaws.com/mariadb/
+enabled=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-MariaDB
+gpgcheck=1
+```
+
+and run the below commands to add the GPG file:
+
+```
+cd /etc/pki/rpm-gpg
+yum install wget
+wget https://yum.mariadb.org/RPM-GPG-KEY-MariaDB
+```
 
 
 ## References:
