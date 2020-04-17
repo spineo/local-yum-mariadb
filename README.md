@@ -346,7 +346,7 @@ MariaDB [(none)]>
 
 and then run _service mariadb restart_
 
-## Install the MariaDB Server/Client on a Slave VM
+## Install the MariaDB Server/Client on a Slave Instance
 
 Before starting the installation we will create another RHEL 8 AWS instance (same flavor) and give it the tag _Name MariaDB-Slave_. No need to assign any security groups (other than leave the default SSH access).
 
@@ -373,7 +373,7 @@ yum install wget
 wget https://yum.mariadb.org/RPM-GPG-KEY-MariaDB
 ```
 
-## Install the MariaDB Server/Client on the Slave Instance
+## Install the RPMS and Configure MariaDB
 
 As _root_ user (or using _sudo_) run the following commands (note the modified _disablerepo_ name for this instance):
 ```
