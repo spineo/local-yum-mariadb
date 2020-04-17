@@ -188,7 +188,7 @@ Assuming no access issues, the yum listing command above should produce the same
 
 # MariaDB Setup
 
-## Install the MariaDB Server/Client on the Master VM
+## Install the MariaDB Server/Client on the Master Instance
 
 As _root_ user (or using _sudo_) run the following commands:
 ```
@@ -373,6 +373,15 @@ yum install wget
 wget https://yum.mariadb.org/RPM-GPG-KEY-MariaDB
 ```
 
+## Install the MariaDB Server/Client on the Slave Instance
+
+As _root_ user (or using _sudo_) run the following commands (note the modified _disablerepo_ name for this instance):
+```
+yum clean metadata
+yum install galera-4
+yum install --disablerepo=rhui-rhel-8-appstream-rhui-rpms MariaDB-server MariaDB-client
+```
+As before, starup the instance (_service mariadb start_), test log on to the database (_mariadb -u root_), and run the _mysql_secure_installation_ script setting the same options as in the master instance.
 
 ## References:
 
