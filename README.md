@@ -1,7 +1,7 @@
 # local-yum-mariadb
 Local YUM Repository and a MariaDB Cluster
 
-In this example I will set up a local YUM repository in an AWS instance and use it to install/configure a 2-node MariaDB cluster.
+In this example I will set up a local YUM repository in an AWS instance and use it to install/configure a 2-node MariaDB cluster implementing Standard Replication.
 
 # Prepare the AWS Instance
 
@@ -410,6 +410,8 @@ Once the security group has been created, attach it to the MariaDB master instan
 
 ## Configure the Slave to Connect to Master
 
+As mentioned, we will configure the 2-node cluster to implement _Standard Replication_ from Master -> Slave.
+
 Log on to MariaDB (_mariadb -u root -p_) on the slave and run the commands shown below.
 
 ```
@@ -507,3 +509,4 @@ Note that a configuration change like the one above will require a daemon restar
 
 * https://mariadb.com/kb/en/rpm/
 * https://mariadb.com/kb/en/yum/
+* https://mariadb.com/kb/en/setting-up-replication/
