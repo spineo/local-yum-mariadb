@@ -76,7 +76,7 @@ gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-MariaDB
 gpgcheck=1
 ```
 
-The _gpgcheck_ can be disable initially but, if you want to set this up as I did, you can run the below commands as _root_:
+The _gpgcheck_ can be disabled initially but, if you want to set this up as I did, you can run the below commands as _root_:
 
 ```
 cd /etc/pki/rpm-gpg
@@ -102,7 +102,7 @@ server {
 
 ## Download the RPMS and Create the Repo
 
-Run the following commands as _root_ to download the specific version 10.4.12 MariaDB (and non-MariaDB) rpms compatible with RHEL-8 (last _rm_ includes any non-rpm files):
+Run the following commands as _root_ to download the specific version 10.4.12 MariaDB (and non-MariaDB) rpms compatible with RHEL-8 (last _rm_ includes any non-rpm files). For this exercise we will only install the Server/Client RPMS and the _galera_ dependency:
 
 ```
 cd /var/www/html/repos/mariadb/
@@ -156,7 +156,7 @@ MariaDB-tokudb-engine.x86_64                         10.4.12-1.el8              
 MariaDB-tokudb-engine-debuginfo.x86_64               10.4.12-1.el8                                     mariadb
 ```
 
-Note that all RPMS shown in the file listing screenshot are not visible (for instance, MariaDB-server is missing). This is because RHEL 8 already comes with its own RPM distribution named using a lowercase naming convention:
+Note that all RPMS shown in the file listing screenshot are not visible (for instance, MariaDB-server is missing). This is because RHEL 8 already comes with its own conflicting RPM distribution named using a lowercase naming convention:
 
 ```
 [root@ip-xxx-xxx-xxx-xxx ~]# yum list | grep -i mariadb-server
@@ -175,7 +175,7 @@ MariaDB-server-debuginfo.x86_64                  10.4.12-1.el8                  
 
 ## Test Accessing the Repo Remotely
 
-As _root_ user, create the _/etc/yum.repos.d/mariadb.repo_ with contents below (for now, disabling _gpgcheck_ though it can be enabled as shown earlier) in a remote VM:
+As _root_ user, create the _/etc/yum.repos.d/mariadb.repo_ with contents below (for now, disabling _gpgcheck_ though it can easily be enabled as shown earlier) in a remote VM:
 ```
 [mariadb]
 name=mariadb
@@ -199,7 +199,7 @@ yum install --disablerepo=rhel-8-appstream-rhui-rpms MariaDB-server MariaDB-clie
 
 Once installation is complete, start the server by running _service mariadb start_ (and _service mariadb status_ to verify that it is running)
 
-Access the database by running _mariadb -u root_ and once in, run the command shown below:
+Access the database by running _mariadb -u root_ and once in, run the test command shown below:
 ```
 [root@ip-xxx-xxx-xxx-xxx ~]# mariadb -u root
 Welcome to the MariaDB monitor.  Commands end with ; or \g.
@@ -300,7 +300,7 @@ chown -R mysql. /var/log/mariadb
 cp /etc/my.cnf.d/server.cnf  /etc/my.cnf.d/server.cnf.orig
 ```
 
-Edit the _/etc/my.cnf.d/server.cnf_ file to include the below and run _service mariadb restart_ after:
+Edit the _/etc/my.cnf.d/server.cnf_ file to include the below configuration and run _service mariadb restart_ after:
 ```
 [mysqld]
 server-id=1
