@@ -509,4 +509,4 @@ Note that a configuration change like the one above will require a daemon restar
 
 * https://mariadb.com/kb/en/rpm/
 * https://mariadb.com/kb/en/yum/
-* https://mariadb.com/kb/en/setting-up-replication/
+* https://mariadb.com/kb/en/setting-up-replication/ (and https://mariadb.com/kb/en/replication-overview/)
