@@ -309,7 +309,7 @@ log_bin=/var/log/mariadb/mariadb-bin.log
 
 ## Configure the Database
 
-Run _mysql -u root -p_ (enter the password set during the secure installation) and run commands as shown below:
+Run _mariadb -u root -p_ (enter the password set during the secure installation) and run commands as shown below:
 ```
 [root@ip-***-***-***-*** yum.repos.d]# mysql -u root -p
 Enter password: 
@@ -488,7 +488,23 @@ MariaDB [(none)]> SHOW DATABASES;
 
 Likewise, dropping the database on the Master (i.e., DROP DATABASE replication_test) will make it disappear on the slave.
 
-## Troubleshooting Replication
+## Troubleshooting
+
+### Troubleshooting Restart
+
+Problem: Cannot access the database when I issue command _mariadb -u root -p_ and when attempting a start or restart (i.e., _service mariadb start_) the conmmand just hangs.
+
+Solution: Issue the command _service mariadb status_ and this might highlight the issue. A common solution might be to explicitly kill the daemon and then issue the restart:
+
+```
+[root@ip-xxx-xxx-xxx-xxx ~]# ps -ef | grep mysqld
+mysql    10638     1  0 19:51 ?        00:00:00 /usr/sbin/mysqld
+...
+[root@ip-xxx-xxx-xxx-xxx ~]# kill -9 10638
+[root@ip-xxx-xxx-xxx-xxx ~]# service mariadb restart
+```
+
+### Troubleshooting Replication
 
 As mentioned, you can run _SHOW SLAVE STATUS_ to troubleshoot any issues with the replication. For instance, one error I got initially was: 
 ```
@@ -509,4 +525,4 @@ Note that a configuration change like the one above will require a daemon restar
 
 * https://mariadb.com/kb/en/rpm/
 * https://mariadb.com/kb/en/yum/
-* https://mariadb.com/kb/en/setting-up-replication/ (and https://mariadb.com/kb/en/replication-overview/)
+* https://mariadb.com/kb/en/replication-overview/ (and https://mariadb.com/kb/en/setting-up-replication/)
