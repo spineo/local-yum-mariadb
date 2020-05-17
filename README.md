@@ -401,9 +401,7 @@ log_bin=/var/log/mariadb/mariadb-bin.log
 
 ## Create an AWS Security Group
 
-On the AWS Console create a custom security group named _MariaDB_ for Outbound/Inbound traffic on port 3306 (i.e., Go to  _EC2 Dashboard -> Security groups -> Create security group_ and select the built-in TCP rule _MYSQL/Aurora_ on the desired source IP range).
-
-![mariadb security group](images/mariadb_security_group.png)
+On the AWS Console create a custom security group named _MariaDB_ for Outbound/Inbound traffic on port 3306 (i.e., Go to  _EC2 Dashboard -> Security groups -> Create security group_ and select the built-in TCP rule _MYSQL/Aurora_ on the desired source IPs).
 
 Once the security group has been created, attach it to the MariaDB master instance (i.e., on the Console that shows the  _Running Instances_, select the master instance and go to _Actions -> Networking -> Change Security Groups_, check the _MariaDB_ group, and click on _Assign Security Groups_)
 
